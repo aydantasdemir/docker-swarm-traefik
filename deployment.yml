@@ -14,7 +14,7 @@
        tag: "{{ version }}"
 
    - name: Deploy airports-assembly new version
-     shell: COMPOSE_BUILD_TAG={{ version }} docker stack deploy --compose-file airports-assembly/{{ version }}/docker-compose-airports.yml airports_{{ item.value.stack_tag }}
+     shell: COMPOSE_BUILD_TAG={{ version }} docker stack deploy --compose-file airports-assembly/docker-compose-airports.yml airports_{{ item.value.stack_tag }}
      with_dict: "{{ deploy_version }}"
      when: "'{{ item.key }}' == '{{ version }}'"
 
