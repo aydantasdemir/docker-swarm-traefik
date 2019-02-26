@@ -1,0 +1,39 @@
+- hosts: localhost
+  vars:
+     ansible_connection: local
+     version: 1.0.1
+     tag: 101
+
+  tasks:
+   - name: "create primary swarm manager"
+     shell: docker swarm init
+  
+   - name: create networks
+     docker_network:
+        name: "{{ item }}"
+        driver: overlay
+     with_items:
+        - traefik
+        - airports-assembly
+        - countries-assembly
+
+   - name: Deploy traefik stack from compose file
+     shell: docker stack deploy --compose-file traefik/docker-compose-traefik.yml traefik
+
+   - name: Build airports-assembly:{{ version }} docker image
+     docker_image:
+       path: ./airports-assembly/{{ version }}
+       name: airports-assembly
+       tag: "{{ version }}"
+
+   - name: Build countries-assembly:{{ version }} docker image
+     docker_image:
+       path: ./countries-assembly
+       name: countries-assembly
+       tag: 1.0.1
+
+   - name: Deploy airports-assembly initial version
+     shell: COMPOSE_BUILD_TAG={{ version }} docker stack deploy --compose-file airports-assembly/docker-compose-airports.yml airports_{{ tag }}
+
+   - name: Deploy countries-assembly initial version
+     shell: COMPOSE_BUILD_TAG={{ version }} docker stack deploy --compose-file countries-assembly/docker-compose-countries.yml countries_{{ tag }}

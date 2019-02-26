@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  countries-assembly:
+    image: countries-assembly:${COMPOSE_BUILD_TAG}
+    networks:
+    - countries-assembly
+    labels:
+    - "traefik.backend=countries-assembly"
+    - "traefik.port=8080"
+    - "traefik.frontend.rule=Host:countries.lunatech.com"
+    - "traefik.docker.network=traefik"
+    - "traefik.backend.healthcheck.path=/health/live"
+    - "traefik.backend.healthcheck.interval=3s"
+
+networks:
+  countries-assembly:
+   external:
+      name: countries-assembly

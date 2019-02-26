@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  airports-assembly:
+    image: airports-assembly:${COMPOSE_BUILD_TAG}
+    networks:
+    - airports-assembly
+    labels:
+    - "traefik.backend=airports-assembly"
+    - "traefik.enable=true"
+    - "traefik.port=8080"
+    - "traefik.frontend.rule=Host:airports.lunatech.com"
+    - "traefik.docker.network=traefik"
+    - "traefik.backend.healthcheck.path=/health/live"
+    - "traefik.backend.healthcheck.interval=3s"
+networks:
+  airports-assembly:
+   external:
+      name: airports-assembly

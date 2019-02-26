@@ -1,0 +1,15 @@
+defaultEntryPoints = ["http"]
+
+[entryPoints]
+[entryPoints.http]
+address = ":8000"
+
+[retry]
+attempts = 3
+maxMem = 3
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "localhost"
+watch = true
+swarmmode=true

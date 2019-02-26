@@ -1,0 +1,32 @@
+version: '3.5'
+
+services:
+
+  traefik:
+    image: 'traefik:1.7.9'
+    restart: always
+    command: --web --docker --docker.watch --docker.domain=local --logLevel=DEBUG
+    labels:
+    - "traefik.docker.network=traefik"
+    - "traefik.port=8080"
+    ports:
+    - '8000:8000'
+    - '8080:8080'
+    volumes:
+    - '/var/run/docker.sock:/var/run/docker.sock'
+    - './traefik.toml:/traefik.toml'
+    networks:
+    - traefik
+    - airports-assembly
+    - countries-assembly
+
+networks:
+  airports-assembly:
+     external:
+           name: airports-assembly
+  traefik:
+     external:
+           name: traefik
+  countries-assembly:
+     external:
+           name: countries-assembly

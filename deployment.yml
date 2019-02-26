@@ -1,0 +1,35 @@
+- hosts: localhost
+  vars:
+     ansible_connection: local
+     deploy_version:
+       1.0.1:
+         stack_tag: 101     
+       1.1.0:
+         stack_tag: 110     
+  tasks:
+   - name: Build airports-assembly version {{ version }}
+     docker_image:
+       path: ./airports-assembly/{{ version }}
+       name: airports-assembly
+       tag: "{{ version }}"
+
+   - name: Deploy airports-assembly new version
+     shell: COMPOSE_BUILD_TAG={{ version }} docker stack deploy --compose-file airports-assembly/{{ version }}/docker-compose-airports.yml airports_{{ item.value.stack_tag }}
+     with_dict: "{{ deploy_version }}"
+     when: "'{{ item.key }}' == '{{ version }}'"
+
+   - name: Wait until 
+     uri:
+        url: http://localhost:8000/health/ready
+        headers:
+          Host: "airports.lunatech.com"
+        status_code: 200
+     register: result
+     until: result.status == 200
+     retries: 60
+     delay: 2
+
+   - name: Remove old docker stack
+     shell: docker stack rm airports_{{ item.value.stack_tag }}
+     with_dict: "{{ deploy_version }}"
+     when: "'{{ item.key }}' != '{{ version }}'"
